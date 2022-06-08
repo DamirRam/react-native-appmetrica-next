@@ -103,6 +103,10 @@ export default {
     AppMetrica.reportEvent(eventName, attributes);
   },
 
+  reportRevenue(params: Object, order: Object) {
+    AppMetrica.reportRevenue(params, order);
+  },
+
   reportReferralUrl(referralUrl: string) {
     AppMetrica.reportReferralUrl(referralUrl);
   },
