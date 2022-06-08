@@ -10,6 +10,7 @@ package com.yandex.metrica.plugin.reactnative;
 
 import android.app.Activity;
 import android.util.Log;
+import java.util.Currency;
 
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.Promise;
@@ -19,7 +20,8 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
 import com.yandex.metrica.YandexMetrica;
 import com.yandex.metrica.push.YandexMetricaPush;
-
+import com.yandex.metrica.Revenue;
+import com.google.gson.Gson;
 
 public class AppMetricaModule extends ReactContextBaseJavaModule {
 
@@ -103,6 +105,25 @@ public class AppMetricaModule extends ReactContextBaseJavaModule {
         } else {
             YandexMetrica.reportEvent(eventName, attributes.toHashMap());
         }
+    }
+
+    @ReactMethod
+    public void reportRevenue(ReadableMap params, ReadableMap order) {
+        String currency = params.getString("currency");
+        String productName = params.getString("productName");
+        Double price = params.getDouble("price");
+        Integer quantity = params.getInt("quantity");
+
+        Gson gson = new Gson();
+        String orderJson = gson.toJson(order.toHashMap());
+
+        Revenue revenue = Revenue.newBuilder(price, Currency.getInstance(currency))
+            .withProductID(productName)
+            .withQuantity(quantity)
+            .withPayload(orderJson)
+            .build();
+
+        YandexMetrica.reportRevenue(revenue);
     }
 
     @ReactMethod

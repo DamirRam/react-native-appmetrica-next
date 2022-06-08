@@ -91,9 +91,6 @@ RCT_EXPORT_METHOD(reportAppOpen:(NSString *)deeplink)
     [YMMYandexMetrica handleOpenURL:[NSURL URLWithString:deeplink]];
 }
 
-
-
-
 RCT_EXPORT_METHOD(reportError:(NSString *)message) {
     NSException *exception = [[NSException alloc] initWithName:message reason:nil userInfo:nil];
     [YMMYandexMetrica reportError:message exception:exception onFailure:NULL];
@@ -110,6 +107,25 @@ RCT_EXPORT_METHOD(reportEvent:(NSString *)eventName:(NSDictionary *)attributes)
             NSLog(@"error: %@", [error localizedDescription]);
         }];
     }
+}
+
+RCT_EXPORT_METHOD(reportRevenue:(NSDictionary *)params:(NSDictionary *)order)
+{    
+    NSNumber *numberPrice = [params valueForKey:@"price"];
+    NSString *currency = [params valueForKey:@"currency"];
+    NSString *productName = [params valueForKey:@"productName"];
+    NSNumber *numberQuantity = [params valueForKey:@"quantity"];
+    NSDecimalNumber *price = [NSDecimalNumber decimalNumberWithDecimal:[numberPrice decimalValue]];
+    NSInteger quantity = [numberQuantity integerValue];
+    
+    YMMMutableRevenueInfo *revenueInfo = [[YMMMutableRevenueInfo alloc] initWithPriceDecimal:price currency:currency];
+    revenueInfo.productID = productName;
+    revenueInfo.quantity = quantity;
+    revenueInfo.payload = order;
+
+    [YMMYandexMetrica reportRevenue:[revenueInfo copy] onFailure:^(NSError *error) {
+        NSLog(@"Revenue error: %@", error);
+    }];
 }
 
 RCT_EXPORT_METHOD(reportReferralUrl:(NSString *)referralUrl)
