@@ -20,6 +20,7 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
 import com.yandex.metrica.YandexMetrica;
 import com.yandex.metrica.push.YandexMetricaPush;
+import com.yandex.appmetrica.push.hms.HmsPushServiceControllerProvider;
 import com.yandex.metrica.Revenue;
 import com.google.gson.Gson;
 
@@ -56,7 +57,7 @@ public class AppMetricaModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void initPush() {
-        YandexMetricaPush.init(reactContext);
+        YandexMetricaPush.init(reactContext, new HmsPushServiceControllerProvider(reactContext));
     }
 
     @ReactMethod
