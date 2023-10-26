@@ -177,11 +177,14 @@ RCT_EXPORT_METHOD(setUserProfileID:(NSString *)userProfileID)
 }
 
 - (YMMECommerceProduct *)createProduct:(NSDictionary *)product {
-    YMMECommerceAmount *actualFiat = [[YMMECommerceAmount alloc] initWithUnit:product[@"currency"] value:[NSDecimalNumber decimalNumberWithString:product[@"price"]]];
-    YMMECommerceAmount *originalFiat = [[YMMECommerceAmount alloc] initWithUnit:product[@"currency"] value:[NSDecimalNumber decimalNumberWithString:product[@"originalPrice"]]];
+    NSNumber *priceValue = [product valueForKey:@"price"];
+    NSNumber *originalPriceValue = [product valueForKey:@"originalPrice"];
+    
+    YMMECommerceAmount *actualFiat = [[YMMECommerceAmount alloc] initWithUnit:product[@"currency"] value:[NSDecimalNumber decimalNumberWithDecimal:[priceValue decimalValue]]];
+    YMMECommerceAmount *originalFiat = [[YMMECommerceAmount alloc] initWithUnit:product[@"currency"] value:[NSDecimalNumber decimalNumberWithDecimal:[originalPriceValue decimalValue]]];
 
-   YMMECommercePrice *actualPrice = [[YMMECommercePrice alloc] initWithFiat:actualFiat internalComponents:@[]];
-   YMMECommercePrice *originalPrice = [[YMMECommercePrice alloc] initWithFiat:originalFiat internalComponents:@[]];
+    YMMECommercePrice *actualPrice = [[YMMECommercePrice alloc] initWithFiat:actualFiat internalComponents:@[]];
+    YMMECommercePrice *originalPrice = [[YMMECommercePrice alloc] initWithFiat:originalFiat internalComponents:@[]];
 
     YMMECommerceProduct *productObj = [[YMMECommerceProduct alloc] initWithSKU:product[@"sku"] name:product[@"name"] categoryComponents:@[] payload:@{} actualPrice:actualPrice originalPrice:originalPrice promoCodes:@[product[@"promoCode"]]];
 
@@ -189,20 +192,24 @@ RCT_EXPORT_METHOD(setUserProfileID:(NSString *)userProfileID)
 }
 
 - (YMMECommercePrice *)createPrice:(NSDictionary *)product {
-    YMMECommerceAmount *priceObj = [[YMMECommerceAmount alloc] initWithUnit:product[@"currency"] value:[NSDecimalNumber decimalNumberWithString:product[@"price"]]];
+    NSNumber *priceValue = [product valueForKey:@"fullPrice"];
+    
+    YMMECommerceAmount *priceObj = [[YMMECommerceAmount alloc] initWithUnit:product[@"currency"] value:[NSDecimalNumber decimalNumberWithDecimal:[priceValue decimalValue]]];
     YMMECommercePrice *actualPrice = [[YMMECommercePrice alloc] initWithFiat:priceObj internalComponents:@[]];
 
     return actualPrice;
 }
 
 - (YMMECommerceCartItem *)createCartItem:(NSDictionary *)product {
+    NSNumber *quantityValue = [product valueForKey:@"quantity"];
+    
     YMMECommerceScreen *screen = [self createScreen:@{}];
 
     YMMECommerceProduct *productObj = [self createProduct:product];
 
      YMMECommerceReferrer *referrer = [[YMMECommerceReferrer alloc] initWithType:@"" identifier:@"" screen:screen];
 
-    NSDecimalNumber *quantity = [NSDecimalNumber decimalNumberWithString:product[@"quantity"]];
+    NSDecimalNumber *quantity = [NSDecimalNumber decimalNumberWithDecimal:[quantityValue decimalValue]];
 
     YMMECommercePrice *actualPrice = [self createPrice:product];
 

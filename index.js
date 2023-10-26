@@ -99,15 +99,15 @@ export default {
   },
 
   showProductCard(params) {
-    AppMetrica.showProductCard({originalPrice: '0', promoCode: '', ...params});
+    AppMetrica.showProductCard({originalPrice: 0, promoCode: '', ...params});
   },
 
   addToCart(product) {
-    AppMetrica.addToCart({originalPrice: '0', promoCode: '', ...product});
+    AppMetrica.addToCart({originalPrice: 0, promoCode: '', ...product});
   },
 
   removeFromCart(product) {
-    AppMetrica.removeFromCart({originalPrice: '0', promoCode: '', ...product});
+    AppMetrica.removeFromCart({originalPrice: 0, promoCode: '', ...product});
   },
 
   beginCheckout(products, identifier) {
