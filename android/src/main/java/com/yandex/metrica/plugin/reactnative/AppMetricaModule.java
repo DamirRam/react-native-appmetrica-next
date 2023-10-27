@@ -10,7 +10,26 @@ package com.yandex.metrica.plugin.reactnative;
 
 import android.app.Activity;
 import android.util.Log;
+
+import androidx.annotation.LongDef;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import com.facebook.react.bridge.ReadableArray;
+import com.facebook.react.bridge.ReadableMapKeySetIterator;
+import com.facebook.react.bridge.ReadableType;
+
+import java.lang.Exception;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Arrays;
 import java.util.Currency;
+
+import org.json.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.Promise;
@@ -18,11 +37,26 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
+import com.google.gson.Gson;
 import com.yandex.metrica.YandexMetrica;
 import com.yandex.metrica.push.YandexMetricaPush;
 import com.yandex.appmetrica.push.hms.HmsPushServiceControllerProvider;
 import com.yandex.metrica.Revenue;
-import com.google.gson.Gson;
+import com.yandex.metrica.ecommerce.ECommerceAmount;
+import com.yandex.metrica.ecommerce.ECommerceCartItem;
+import com.yandex.metrica.ecommerce.ECommerceEvent;
+import com.yandex.metrica.ecommerce.ECommerceOrder;
+import com.yandex.metrica.ecommerce.ECommercePrice;
+import com.yandex.metrica.ecommerce.ECommerceProduct;
+import com.yandex.metrica.ecommerce.ECommerceReferrer;
+import com.yandex.metrica.ecommerce.ECommerceScreen;
+
+import java.lang.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 
 public class AppMetricaModule extends ReactContextBaseJavaModule {
 
@@ -165,5 +199,96 @@ public class AppMetricaModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void setUserProfileID(String userProfileID) {
         YandexMetrica.setUserProfileID(userProfileID);
+    }
+
+        public ECommerceScreen createScreen(ReadableMap params) {
+        ECommerceScreen screen = new ECommerceScreen().setName(params.getString("screenName")).setSearchQuery(params.getString("searchQuery"));
+        return screen;
+    }
+
+    public ECommerceProduct createProduct(ReadableMap params) {
+        ECommercePrice actualPrice = new ECommercePrice(new ECommerceAmount(params.getDouble("price"), params.getString("currency")));
+        ECommercePrice originalPrice = new ECommercePrice(new ECommerceAmount(params.getDouble("originalPrice"), params.getString("currency")));
+
+        ECommerceProduct product = new ECommerceProduct(params.getString("sku")).setActualPrice(actualPrice).setOriginalPrice(originalPrice).setPromocodes(Arrays.asList(params.getString("promoCode"))).setName(params.getString("name"));
+
+        return product;
+    }
+
+    public ECommerceCartItem createCartItem(ReadableMap params) {
+        ECommerceScreen screen = this.createScreen(params);
+        ECommerceProduct product = this.createProduct(params);
+        ECommercePrice actualPrice = new ECommercePrice(new ECommerceAmount(params.getDouble("fullPrice"), params.getString("currency")));
+        ECommerceReferrer referrer = new ECommerceReferrer().setScreen(screen);
+        ECommerceCartItem cartItem = new ECommerceCartItem(product, actualPrice, params.getDouble(("quantity"))).setReferrer(referrer);
+        return cartItem;
+    }
+
+    @ReactMethod
+    public void showScreen(ReadableMap params) {
+        ECommerceScreen screen = this.createScreen(params);
+        ECommerceEvent showScreenEvent = ECommerceEvent.showScreenEvent(screen);
+        YandexMetrica.reportECommerce(showScreenEvent);
+    }
+
+    @ReactMethod
+    public void showProductCard(ReadableMap params) {
+        ECommerceScreen screen = this.createScreen(params);
+        ECommerceProduct product = this.createProduct(params);
+        ECommerceEvent showProductCardEvent = ECommerceEvent.showProductCardEvent(product, screen);
+        YandexMetrica.reportECommerce(showProductCardEvent);
+    }
+
+    @ReactMethod
+    public void addToCart(ReadableMap params) {
+        ECommerceCartItem cartItem = this.createCartItem(params);
+        ECommerceEvent addCartItemEvent = ECommerceEvent.addCartItemEvent(cartItem);
+        YandexMetrica.reportECommerce(addCartItemEvent);
+    }
+
+    @ReactMethod
+    public void removeFromCart(ReadableMap params) {
+        ECommerceCartItem cartItem = this.createCartItem(params);
+        ECommerceEvent removeCartItemEvent = ECommerceEvent.removeCartItemEvent(cartItem);
+        YandexMetrica.reportECommerce(removeCartItemEvent);
+    }
+
+    @ReactMethod
+    public void beginCheckout(ReadableArray products, String identifier) {
+        ArrayList<ECommerceCartItem> cartItems = new ArrayList<>();
+        for (int i = 0; i < products.size(); i++) {
+            ReadableMap productData = products.getMap(i);
+            cartItems.add(this.createCartItem(productData));
+        }
+        ECommerceOrder order = new ECommerceOrder(identifier, cartItems);
+        ECommerceEvent beginCheckoutEvent = ECommerceEvent.beginCheckoutEvent(order);
+        YandexMetrica.reportECommerce(beginCheckoutEvent);
+    }
+
+    @ReactMethod
+    public void finishCheckout(ReadableArray products, String identifier, ReadableMap payload) {
+        ArrayList<ECommerceCartItem> cartItems = new ArrayList<>();
+        for (int i = 0; i < products.size(); i++) {
+            ReadableMap productData = products.getMap(i);
+            cartItems.add(this.createCartItem(productData));
+        }
+        ECommerceOrder order = new ECommerceOrder(identifier, cartItems).setPayload(readableMapToMap(payload));
+        ECommerceEvent purchaseEvent = ECommerceEvent.purchaseEvent(order);
+        YandexMetrica.reportECommerce(purchaseEvent);
+    }
+
+
+    private static Map<String, String> readableMapToMap(ReadableMap readableMap) {
+        Map<String, String> map = new HashMap<>();
+        ReadableMapKeySetIterator iterator = readableMap.keySetIterator();
+
+        while (iterator.hasNextKey()) {
+            String key = iterator.nextKey();
+            String value = readableMap.getString(key);
+
+            map.put(key, value);
+        }
+
+        return map;
     }
 }
