@@ -62,6 +62,6 @@ dependencies {
     implementation 'com.android.installreferrer:installreferrer:1.1.2'
     implementation "com.google.android.gms:play-services-base:17.5.0"
     implementation 'com.google.code.gson:gson:2.9.0'
-    implementation "com.yandex.android:appmetricapush-provider-hms:2.2.0"
-    implementation 'com.huawei.hms:push:5.0.4.302'
+    implementation "com.yandex.android:appmetricapush-provider-hms:2.3.3"
+    implementation 'com.huawei.hms:push:6.11.0.300'
 }
