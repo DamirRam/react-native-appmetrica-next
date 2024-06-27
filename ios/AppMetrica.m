@@ -8,7 +8,6 @@
 
 #import <React/RCTConvert.h>
 #import "AppMetrica.h"
-#import <Firebase/Firebase.h>
 #import "AppMetricaUtils.h"
 #import <YandexMobileMetricaPush/YMPYandexMetricaPush.h>
 
@@ -67,7 +66,7 @@ RCT_EXPORT_METHOD(initPush:(NSData *)deviceToken)
     #else
        YMPYandexMetricaPushEnvironment pushEnvironment = YMPYandexMetricaPushEnvironmentProduction;
     #endif
-   [YMPYandexMetricaPush setDeviceTokenFromData:[FIRMessaging messaging].APNSToken pushEnvironment:pushEnvironment];
+   [YMPYandexMetricaPush setDeviceTokenFromData:deviceToken pushEnvironment:pushEnvironment];
     
 }
 
