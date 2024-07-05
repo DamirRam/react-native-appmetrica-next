@@ -19,10 +19,10 @@ def safeExtGet(prop, fallback) {
 }
 
 android {
-    compileSdkVersion safeExtGet('AwesomeModule_compileSdkVersion', 29)
+    compileSdkVersion safeExtGet('AwesomeModule_compileSdkVersion', 30)
     defaultConfig {
         minSdkVersion safeExtGet('AwesomeModule_minSdkVersion', 16)
-        targetSdkVersion safeExtGet('AwesomeModule_targetSdkVersion', 29)
+        targetSdkVersion safeExtGet('AwesomeModule_targetSdkVersion', 30)
         versionCode 1
         versionName "1.0"
 
@@ -57,11 +57,8 @@ dependencies {
     //noinspection GradleDynamicVersion
     implementation "com.facebook.react:react-native:+"  // From node_modules
     implementation 'com.yandex.android:mobmetricalib:5.0.0'
-    implementation "com.yandex.android:mobmetricapushlib:2.1.1"
     implementation "com.android.support:support-compat:28.0.0"
     implementation 'com.android.installreferrer:installreferrer:1.1.2'
     implementation "com.google.android.gms:play-services-base:17.5.0"
     implementation 'com.google.code.gson:gson:2.9.0'
-    implementation "com.yandex.android:appmetricapush-provider-hms:2.3.3"
-    implementation 'com.huawei.hms:push:6.11.0.300'
 }

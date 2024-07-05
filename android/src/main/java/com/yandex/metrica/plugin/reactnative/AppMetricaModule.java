@@ -39,8 +39,6 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
 import com.google.gson.Gson;
 import com.yandex.metrica.YandexMetrica;
-import com.yandex.metrica.push.YandexMetricaPush;
-import com.yandex.appmetrica.push.hms.HmsPushServiceControllerProvider;
 import com.yandex.metrica.Revenue;
 import com.yandex.metrica.ecommerce.ECommerceAmount;
 import com.yandex.metrica.ecommerce.ECommerceCartItem;
@@ -91,12 +89,12 @@ public class AppMetricaModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void initPush() {
-        YandexMetricaPush.init(reactContext, new HmsPushServiceControllerProvider(reactContext));
+        // not implemented
     }
 
     @ReactMethod
     public void getToken(Promise promise) {
-        promise.resolve(YandexMetricaPush.getToken());
+        // not implemented
     }
 
     @ReactMethod
